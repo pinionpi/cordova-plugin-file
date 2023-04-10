@@ -1289,6 +1289,11 @@ public class FileUtils extends CordovaPlugin {
             } else if (path.startsWith(LocalFilesystemURL.fsNameToCdvKeyword("assets"))) {
                 targetFileSystem = "assets";
             }
+            // --------------------added start--------------------
+            else if (path.startsWith(LocalFilesystemURL.fsNameToCdvKeyword("content"))) {
+                targetFileSystem = "content";
+            }
+            // --------------------added end--------------------
 
             boolean isAssetsFS = targetFileSystem == "assets";
 
@@ -1315,6 +1320,17 @@ public class FileUtils extends CordovaPlugin {
                         }
 
                         try {
+                            // --------------------added start--------------------
+                            if(targetFileSystem == "content") {
+                                ContentResolver cr = webView.getContext().getContentResolver();
+                                Uri uri = Uri.parse(fileTarget);
+                                InputStream fileIS = new FileInputStream(cr.openFileDescriptor(uri, "r").getFileDescriptor());
+                                String fileMimeType = cr.getType(uri);
+
+                                return new WebResourceResponse(fileMimeType, null, fileIS);
+                            }
+                            // --------------------added end--------------------
+
                             InputStream fileIS = !isAssetsFS ?
                                 new FileInputStream(file) :
                                 webView.getContext().getAssets().open(fileTarget);
